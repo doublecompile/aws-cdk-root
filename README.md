@@ -1,8 +1,17 @@
 # Root Account CDK Project
 
-This is an AWS CDK app for setting up the root account of an Organization with sane auditing.
+An AWS CDK app providing a stack comprising sane auditing and security for root accounts in an organization.
 
 The `cdk.json` file tells the CDK Toolkit how to execute this app.
+
+## Prerequisites
+
+We generally expect AWS Organizations to be setup and CloudTrail to be added as a trusted service.
+
+```
+aws organizations enable-aws-service-access --service-principal cloudtrail.amazonaws.com
+aws iam create-service-linked-role --aws-service-name cloudtrail.amazonaws.com
+```
 
 ## Useful commands
 

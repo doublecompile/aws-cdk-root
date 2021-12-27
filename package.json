@@ -1,6 +1,6 @@
 {
   "name": "@doublecompile/aws-cdk-root",
-  "description": "An AWS CDK app providing a stack comprising sane auditing and security",
+  "description": "An AWS CDK app providing a stack comprising sane auditing and security for root accounts in an organization",
   "version": "0.1.0",
   "license": "Apache-2.0",
   "bin": {

@@ -7,7 +7,7 @@ const { RootAccountStack } = require("../lib/root-account-stack");
 const app = new cdk.App();
 
 // Instantiate the RootAccountStack.
-const rootAccountStack = new RootAccountStack(app, "root-account", {
+const rootAccountStack = new RootAccountStack(app, "OrgRoot", {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
