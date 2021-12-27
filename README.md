@@ -13,6 +13,12 @@ aws organizations enable-aws-service-access --service-principal cloudtrail.amazo
 aws iam create-service-linked-role --aws-service-name cloudtrail.amazonaws.com
 ```
 
+## Context
+
+The following context values are available to specify on the command line.
+
+* `organization` – Required. The AWS Organizations ID of the root account.
+
 ## Useful commands
 
 - `npm run test` perform the jest unit tests
