@@ -11,8 +11,18 @@ import {
 } from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
+/**
+ * Constructor properties for CloudTrailSetup.
+ */
 export interface CloudTrailSetupProps {
+  /**
+   * The ID of the orginaziton in AWS Organizations
+   */
   readonly organizationId?: string;
+
+  /**
+   * The number of days the log group may retain logs.
+   */
   readonly logGroupRetentionDays?: number;
 }
 
@@ -36,14 +46,9 @@ export class CloudTrailSetup extends Construct {
   public readonly logGroup: LogGroup;
 
   /**
-   * The S3 bucket's KMS key
+   * The KMS key for encryption at rest.
    */
-  public readonly storageKey: Key;
-
-  /**
-   * The CloudWatch Logs group's KMS key
-   */
-  public readonly logGroupKey: Key;
+  public readonly encryptionKey: Key;
 
   /**
    * @param scope - The scope in which to define this construct.
@@ -67,19 +72,12 @@ export class CloudTrailSetup extends Construct {
       "cloudtrail.amazonaws.com"
     );
 
-    const storageKey = new Key(this, "StorageKey", {
+    const storageKey = new Key(this, "Key", {
       description: "Encrypts CloudTrail destination S3 bucket",
       enabled: true,
       enableKeyRotation: true,
     });
-    this.storageKey = storageKey;
-
-    const logGroupKey = new Key(this, "LogGroupKey", {
-      description: "Encrypts CloudTrail destination CloudWatch Log Group",
-      enabled: true,
-      enableKeyRotation: true,
-    });
-    this.logGroupKey = logGroupKey;
+    this.encryptionKey = storageKey;
 
     this.bucket = new Bucket(this, "Storage", {
       encryption: BucketEncryption.KMS,
@@ -121,7 +119,7 @@ export class CloudTrailSetup extends Construct {
     }
 
     this.logGroup = new LogGroup(this, "LogGroup", {
-      encryptionKey: logGroupKey,
+      encryptionKey: storageKey,
       retention: logGroupRetentionDays || RetentionDays.ONE_MONTH,
     });
 
@@ -132,7 +130,7 @@ export class CloudTrailSetup extends Construct {
       `logs.${region}.amazonaws.com`
     );
     const cloudWatchLogsKeyGrant =
-      logGroupKey.grantEncryptDecrypt(logGroupPrincipal);
+      storageKey.grantEncryptDecrypt(logGroupPrincipal);
     for (const statement of cloudWatchLogsKeyGrant.resourceStatements) {
       statement.addActions("kms:Describe*");
     }
@@ -142,6 +140,7 @@ export class CloudTrailSetup extends Construct {
       bucket: this.bucket,
       sendToCloudWatchLogs: true,
       cloudWatchLogGroup: this.logGroup,
+      isMultiRegionTrail: true,
       // You have to name the trail in order to use this property on the L2
       // isOrganizationTrail: true,
       // orgId: organizationId,
